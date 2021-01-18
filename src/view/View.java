@@ -198,14 +198,17 @@ public class View extends javax.swing.JFrame {
 
         afegirSponsor1Label.setText("jLabel1");
 
+        afegirSponsor1Text.setEditable(false);
         afegirSponsor1Text.setText("jTextField1");
 
         afegirSponsor2Label.setText("jLabel2");
 
+        afegirSponsor2Text.setEditable(false);
         afegirSponsor2Text.setText("jTextField2");
 
         afegirSponsor3Label.setText("jLabel3");
 
+        afegirSponsor3Text.setEditable(false);
         afegirSponsor3Text.setText("jTextField3");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);

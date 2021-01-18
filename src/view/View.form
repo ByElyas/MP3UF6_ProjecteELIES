@@ -433,6 +433,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="afegirSponsor1Text">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="text" type="java.lang.String" value="jTextField1"/>
           </Properties>
         </Component>
@@ -443,6 +444,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="afegirSponsor2Text">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="text" type="java.lang.String" value="jTextField2"/>
           </Properties>
         </Component>
@@ -453,6 +455,7 @@
         </Component>
         <Component class="javax.swing.JTextField" name="afegirSponsor3Text">
           <Properties>
+            <Property name="editable" type="boolean" value="false"/>
             <Property name="text" type="java.lang.String" value="jTextField3"/>
           </Properties>
         </Component>

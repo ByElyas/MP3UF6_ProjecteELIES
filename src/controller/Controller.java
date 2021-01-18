@@ -14,18 +14,10 @@ import java.awt.event.MouseEvent;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import static java.lang.System.console;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.JOptionPane;
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableColumnModel;
 import model.Conductor;
@@ -34,15 +26,15 @@ import model.Vehicle;
 import utilscontroller.Utils;
 import view.View;
 import java.sql.*;
-import java.util.Collection;
 import java.util.Properties;
-import java.util.TreeSet;
+import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
-//import utilscontroller.Utils;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 /**
  *
- * @author profe
+ * @author SrBetllies
  */
 public class Controller {
 
@@ -201,13 +193,15 @@ public class Controller {
 //        System.out.println();
 //        System.out.println(filaSel);
 ////        modelo.getData().addAll(modelo.getDataOrd());
-        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+//        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true);
 
     }
 
     public void carregarTaulaVehicleOrdenada() {
 //        modelo.getDataOrd().addAll(modelo.getData());
-        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+//        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true);
     }
 
     public void carregarTaulaVehicleActual() {
@@ -220,12 +214,12 @@ public class Controller {
 
     public void carregarTaulaConductor() {
 //        modelo.getDataConductor().addAll(modelo.getDataOrdConductor());
-        tcC = Utils.<Conductor>loadTable(modelo.getDataConductor(), view.getJTaulaConductor(), Conductor.class, true, true);
+        tcC = Utils.<Conductor>loadTable(modelo.getDataConductor(), view.getJTaulaConductor(), Conductor.class, true);
     }
 
     public void carregarTaulaConductorOrdenada() {
 //        modelo.getDataOrdConductor().addAll(modelo.getDataConductor());
-        tcC = Utils.<Conductor>loadTable(modelo.getDataOrdConductor(), view.getJTaulaConductor(), Conductor.class, true, true);
+        tcC = Utils.<Conductor>loadTable(modelo.getDataOrdConductor(), view.getJTaulaConductor(), Conductor.class, true);
     }
 
     public void carregarTaulaConductorActual() {
@@ -241,14 +235,14 @@ public class Controller {
 
         try {
             //COSA DE BASE DE DADES OLEEE
-            System.out.println("Coleccio conductor antes de borrar->");
-            System.out.println(modelo.getDataConductor());
+            // System.out.println("Coleccio conductor antes de borrar->");
+            // System.out.println(modelo.getDataConductor());
             modelo.buidarCol();
-            System.out.println("Coleccio conductor desrpes de borrar->");
-            System.out.println(modelo.getDataConductor());
+            // System.out.println("Coleccio conductor desrpes de borrar->");
+            // System.out.println(modelo.getDataConductor());
             //Connectar a la BD
             con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-            System.out.println("S'ha connectat a la bd correctament!");
+            // System.out.println("S'ha connectat a la bd correctament!");
 
             //COSA DE VEHICLE
             Statement sta = con.createStatement();
@@ -285,8 +279,8 @@ public class Controller {
                 vehicleC = resultc.getInt("_5_vehicle_Conductor");
 //                System.out.println("ID conductor:" + idC + ", Marca:" + marcaV + ", Model:" + modelV);
                 modelo.insertarConductor(nomC, cognomC, edatC, idC, vehicleC);
-                System.out.println("Coleccio conductor desrpes de insertar les dades de la bd->");
-                System.out.println(modelo.getDataConductor());
+                //System.out.println("Coleccio conductor despres de insertar les dades de la bd->");
+                // System.out.println(modelo.getDataConductor());
             }
         } catch (SQLException ex) {
             Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
@@ -580,7 +574,7 @@ public class Controller {
                         JOptionPane.showMessageDialog(view, "La edat del conductor ha d'estar entre 18 i 80 anys!");
                     } else {
                         TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
-                        tcm.addColumn(tc);;
+                        tcm.addColumn(tc);
                         Vehicle veh = (Vehicle) view.getJTaulaVehicles().getValueAt(view.getNumVehicleConductorCombobox().getSelectedIndex(),
                                 tcm.getColumnCount() - 1);
                         tcm.removeColumn(tc);
@@ -641,6 +635,18 @@ public class Controller {
             }
         }
         );
+        
+        
+        //COSA DE ACTUALITZAR LA BD SI CANVIEM ALGO DIRECTAMENT A LA TAULA OLE OLE
+        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
+        view.getJTaulaVehicles().getModel().addTableModelListener(new TableModelListener() {
+            @Override
+            public void tableChanged(TableModelEvent e) {
+                // TODO fer cosa de que canvii a la BD o algo no se
+                System.out.println("holaa");
+            }
+            
+        });
 
 //        view.getNumVehicleConductorCombobox().addItemListener(e -> {
 //            comboboxActualCond =;
@@ -655,6 +661,8 @@ public class Controller {
                 }
             }
         });
+
+
     }
 
     //Per implementar els ActionEvents dels components de la vista (útil per 
@@ -681,7 +689,7 @@ public class Controller {
 
         @Override
         public void keyPressed(KeyEvent e) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+
         }
 
         @Override
