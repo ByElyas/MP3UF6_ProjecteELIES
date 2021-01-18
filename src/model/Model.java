@@ -147,10 +147,7 @@ public class Model {
         dataOrdConductor.clear();
     }
 
-//    public void eliminarVehicle(Vehicle algo) {
-//        Model.eliminar(algo, data);
-//        Model.eliminar(algo, dataOrd);
-//    }
+
     public void eliminarVehicleBD(Vehicle v) {
         try {
             Connection con = this.getConnection();

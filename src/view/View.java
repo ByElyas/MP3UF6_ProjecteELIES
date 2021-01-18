@@ -739,6 +739,22 @@ public class View extends javax.swing.JFrame {
     public JComboBox<String> getFiltrarVehiclesCombobox() {
         return filtrarVehiclesCombobox;
     }
+
+    public JPanel getjPanel1() {
+        return jPanel1;
+    }
+
+    public void setjPanel1(JPanel jPanel1) {
+        this.jPanel1 = jPanel1;
+    }
+
+    public JPanel getjPanel2() {
+        return jPanel2;
+    }
+
+    public void setjPanel2(JPanel jPanel2) {
+        this.jPanel2 = jPanel2;
+    }
     
     
         

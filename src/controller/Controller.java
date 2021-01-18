@@ -37,6 +37,7 @@ import java.sql.*;
 import java.util.Collection;
 import java.util.Properties;
 import java.util.TreeSet;
+import javax.swing.ListSelectionModel;
 //import utilscontroller.Utils;
 
 /**
@@ -48,15 +49,12 @@ public class Controller {
     private static Model modelo;
     private static View view;
 
-    
-
     private Connection con;
     private String urlBD;
     private String userBD;
-//    Esta feo aixo de posar hardcoded una password pero suo bastant
     private String passwordUserBD;
     private String bdDriver;
-    
+
 //    private int comboboxActualCond = 0;
     private int colVehicleActual = 0;
     private int colConductorActual = 0;
@@ -64,10 +62,8 @@ public class Controller {
     private int filaSelCond = -1;
     private TableColumn tc;
     private TableColumn tcC;
-    private TableColumn tcAlgo;
-    private TableColumn tcE;
-
-
+//    private TableColumn tcAlgo;
+//    private TableColumn tcE;
 
 //    prop.load(inputstream);
 //    urlBD = prop.getProperty("url");
@@ -75,24 +71,21 @@ public class Controller {
 //    userBD = prop.getProperty("user");
 //    passwordUserBD = prop.getProperty("passwordUser");
 //    bdDriver = prop.getProperty("driver");
-
-    
-
     public Controller(Model m, View v) throws SQLException, FileNotFoundException, IOException {
 
         view = v;
         modelo = m;
 
         //Cosa de conectarse a la bd agafant les coses des de un fitxer de properties ole ole
-      Properties prop = new Properties();
-      prop.load(new FileInputStream(new File("bd.properties")));
-      urlBD = prop.getProperty("url");
-      userBD = prop.getProperty("user");
-      passwordUserBD = prop.getProperty("passwordUser");
-      
-      con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-       
-      controlador();
+        Properties prop = new Properties();
+        prop.load(new FileInputStream(new File("bd.properties")));
+        urlBD = prop.getProperty("url");
+        userBD = prop.getProperty("user");
+        passwordUserBD = prop.getProperty("passwordUser");
+
+        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
+
+        controlador();
     }
 
     private void defecteText() {
@@ -271,7 +264,6 @@ public class Controller {
                 modelV = result.getString("_2_model_Vehicle");
                 anyV = result.getInt("_3_any_Vehicle");
                 marcaV = result.getString("_4_marca_Vehicle");
-//                System.out.println("Numero:" + numV + ", Marca:" + marcaV + ", Model:" + modelV);
                 modelo.insertarVehicle(marcaV, modelV, anyV, numV);
             }
 
@@ -333,37 +325,59 @@ public class Controller {
                 TableColumnModel tcmMC = view.getJTaulaVehicles().getColumnModel();
                 tcmMC.addColumn(tc);
                 Vehicle vehE = (Vehicle) view.getJTaulaVehicles().getValueAt(filaSel, tcmMC.getColumnCount() - 1);
-                tcmMC.removeColumn(tc);
                 view.getEditarNumeroText().setText(String.valueOf(vehE.get1_numero_Vehicle()));
                 view.getEditarAnyText().setText(String.valueOf(vehE.get3_any_Vehicle()));
                 view.getEditarModelText().setText(vehE.get2_model_Vehicle());
                 view.getEditarMarcaText().setText(vehE.get4_marca_Vehicle());
                 TableColumnModel tcmC2 = view.getJTaulaConductor().getColumnModel();
-                if (filaSel != -1) {
-                    TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
-                    tcm.addColumn(tc);
-                    Vehicle obj = (Vehicle) view.getJTaulaVehicles().getValueAt(filaSel, tcm.getColumnCount() - 1);
-                    tcm.removeColumn(tc);
-                    Collection<Conductor> prova = new TreeSet<>();
-                    for (int i = 0; i < tcmC2.getColumnCount(); i++) {
-                        Conductor condE = (Conductor) view.getJTaulaConductor().getValueAt(i, tcmC2.getColumnCount() - 1);
-                        if (condE.get5_vehicle_Conductor() == vehE.get1_numero_Vehicle()) {
-                            prova.add(condE);
+                try {
+                    if (filaSel != -1) {
+                        ListSelectionModel selmodC = view.getJTaulaConductor().getSelectionModel();
+                        selmodC.clearSelection();
+
+                        for (int i = 0; i < tcmC2.getColumnCount(); i++) {
+                            int v = ((Integer) view.getJTaulaConductor().getValueAt(i, tcmC2.getColumnCount() - 1));
+                            if (v == vehE.get1_numero_Vehicle()) {
+                                selmodC.addSelectionInterval(i, i);
+                            }
                         }
                     }
-                    tcC = Utils.loadTable(prova, view.getJTaulaConductor(), Conductor.class, true, true);
+                } catch (ArrayIndexOutOfBoundsException out) {
+
                 }
-                
-                
-                
-                
-                
-                
-//                carregarTaulaConductorActual();
+                tcmMC.removeColumn(tc);
             }
         }
-        //EDITAR VEHICLE
         );
+
+        // DES-SEL·LECCIONAR FILES SI CLICKEM A EL JPANEL
+        view.getjPanel1().addMouseListener(
+                new MouseAdapter() {
+            public void mouseClicked(MouseEvent a) {
+                ListSelectionModel selmodC = view.getJTaulaConductor().getSelectionModel();
+                selmodC.clearSelection();
+
+                ListSelectionModel selmodV = view.getJTaulaVehicles().getSelectionModel();
+                selmodV.clearSelection();
+                carregarBD();
+            }
+        }
+        );
+
+        view.getjPanel2().addMouseListener(
+                new MouseAdapter() {
+            public void mouseClicked(MouseEvent a) {
+                ListSelectionModel selmodC = view.getJTaulaConductor().getSelectionModel();
+                selmodC.clearSelection();
+
+                ListSelectionModel selmodV = view.getJTaulaVehicles().getSelectionModel();
+                selmodV.clearSelection();
+                carregarBD();
+            }
+        }
+        );
+
+        //EDITAR VEHICLE
         view.getEditarVehicleButton().addActionListener(e -> {
             if (filaSel != -1) {
                 TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
@@ -496,15 +510,29 @@ public class Controller {
                 filaSelCond = view.getJTaulaConductor().getSelectedRow();
                 TableColumnModel tcmCondE = view.getJTaulaConductor().getColumnModel();
                 tcmCondE.addColumn(tcC);
-//                        System.out.println(filaSel);  
                 Conductor condE = (Conductor) view.getJTaulaConductor().getValueAt(filaSelCond, tcmCondE.getColumnCount() - 1);
-//                System.out.println(String.valueOf(vehE));
-                tcmCondE.removeColumn(tcC);
                 view.getEditarIdConductorText().setText(String.valueOf(condE.get1_id_Conductor()));
                 view.getEditarEdatConductorText().setText(String.valueOf(condE.get3_edat_Conductor()));
                 view.getEditarCognomConductorText().setText(condE.get2_cognom_Conductor());
                 view.getEditarNomConductorText().setText(condE.get4_nom_Conductor());
+                TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
+                tcm.addColumn(tc);
+                try {
+                    if (filaSelCond != -1) {
+                        ListSelectionModel selmodV = view.getJTaulaVehicles().getSelectionModel();
+                        selmodV.clearSelection();
+                        for (int j = 0; j < tcm.getColumnCount(); j++) {
+                            int v = ((Integer) view.getJTaulaVehicles().getValueAt(j, 0));
+                            if (v == condE.get5_vehicle_Conductor()) {
+                                selmodV.addSelectionInterval(j, j);
+                            }
+                        }
+                    }
+                } catch (ArrayIndexOutOfBoundsException out) {
 
+                }
+                tcm.removeColumn(tc);
+                tcmCondE.removeColumn(tcC);
             }
         }
         );
