@@ -5,6 +5,7 @@
  */
 package controller;
 
+import com.db4o.ObjectSet;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -54,28 +55,24 @@ public class Controller {
     private int filaSelCond = -1;
     private TableColumn tc;
     private TableColumn tcC;
-//    private TableColumn tcAlgo;
-//    private TableColumn tcE;
 
-//    prop.load(inputstream);
-//    urlBD = prop.getProperty("url");
-//
-//    userBD = prop.getProperty("user");
-//    passwordUserBD = prop.getProperty("passwordUser");
-//    bdDriver = prop.getProperty("driver");
     public Controller(Model m, View v) throws SQLException, FileNotFoundException, IOException {
 
         view = v;
         modelo = m;
 
         //Cosa de conectarse a la bd agafant les coses des de un fitxer de properties ole ole
-        Properties prop = new Properties();
-        prop.load(new FileInputStream(new File("bd.properties")));
-        urlBD = prop.getProperty("url");
-        userBD = prop.getProperty("user");
-        passwordUserBD = prop.getProperty("passwordUser");
+//        Properties prop = new Properties();
+//        prop.load(new FileInputStream(new File("bd.properties")));
+//        urlBD = prop.getProperty("url");
+//        userBD = prop.getProperty("user");
+//        passwordUserBD = prop.getProperty("passwordUser");
+//
+//        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
 
-        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
+
+
+
 
         controlador();
     }
@@ -193,15 +190,15 @@ public class Controller {
 //        System.out.println();
 //        System.out.println(filaSel);
 ////        modelo.getData().addAll(modelo.getDataOrd());
-//        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true, true);
-        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true);
+        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+//        tc = Utils.<Vehicle>loadTable(modelo.getData(), view.getJTaulaVehicles(), Vehicle.class, true);
 
     }
 
     public void carregarTaulaVehicleOrdenada() {
 //        modelo.getDataOrd().addAll(modelo.getData());
-//        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true, true);
-        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true);
+        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true, true);
+//        tc = Utils.<Vehicle>loadTable(modelo.getDataOrd(), view.getJTaulaVehicles(), Vehicle.class, true);
     }
 
     public void carregarTaulaVehicleActual() {
@@ -214,12 +211,12 @@ public class Controller {
 
     public void carregarTaulaConductor() {
 //        modelo.getDataConductor().addAll(modelo.getDataOrdConductor());
-        tcC = Utils.<Conductor>loadTable(modelo.getDataConductor(), view.getJTaulaConductor(), Conductor.class, true);
+        tcC = Utils.<Conductor>loadTable(modelo.getDataConductor(), view.getJTaulaConductor(), Conductor.class, true, true);
     }
 
     public void carregarTaulaConductorOrdenada() {
 //        modelo.getDataOrdConductor().addAll(modelo.getDataConductor());
-        tcC = Utils.<Conductor>loadTable(modelo.getDataOrdConductor(), view.getJTaulaConductor(), Conductor.class, true);
+        tcC = Utils.<Conductor>loadTable(modelo.getDataOrdConductor(), view.getJTaulaConductor(), Conductor.class, true, true);
     }
 
     public void carregarTaulaConductorActual() {
@@ -233,60 +230,85 @@ public class Controller {
 
     private void carregarBD() {
 
-        try {
-            //COSA DE BASE DE DADES OLEEE
-            // System.out.println("Coleccio conductor antes de borrar->");
-            // System.out.println(modelo.getDataConductor());
-            modelo.buidarCol();
-            // System.out.println("Coleccio conductor desrpes de borrar->");
-            // System.out.println(modelo.getDataConductor());
-            //Connectar a la BD
-            con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-            // System.out.println("S'ha connectat a la bd correctament!");
+//        try {
+//            //COSA DE BASE DE DADES OLEEE
+//            // System.out.println("Coleccio conductor antes de borrar->");
+//            // System.out.println(modelo.getDataConductor());
+//            modelo.buidarCol();
+//            // System.out.println("Coleccio conductor desrpes de borrar->");
+//            // System.out.println(modelo.getDataConductor());
+//            //Connectar a la BD
+//            con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
+//            // System.out.println("S'ha connectat a la bd correctament!");
+//
+//            //COSA DE VEHICLE
+//            Statement sta = con.createStatement();
+//            ResultSet result = sta.executeQuery("SELECT * FROM vehicle;");
+//
+//            
+//            int numV;
+//            String modelV;
+//            int anyV;
+//            String marcaV;
+//
+//            while (result.next()) {
+//                numV = result.getInt("_1_numero_Vehicle");
+//                modelV = result.getString("_2_model_Vehicle");
+//                anyV = result.getInt("_3_any_Vehicle");
+//                marcaV = result.getString("_4_marca_Vehicle");
+//                modelo.insertarVehicle(marcaV, modelV, anyV, numV);
+//            }
+//
+//            //COSA DE CONDUCTOR
+//            Statement stac = con.createStatement();
+//            ResultSet resultc = stac.executeQuery("SELECT * FROM conductor;");
+//
+//            int idC;
+//            String cognomC;
+//            int edatC;
+//            String nomC;
+//            int vehicleC;
+//
+//            while (resultc.next()) {
+//                idC = resultc.getInt("_1_id_conductor");
+//                cognomC = resultc.getString("_2_cognom_Conductor");
+//                edatC = resultc.getInt("_3_edat_Conductor");
+//                nomC = resultc.getString("_4_nom_Conductor");
+//                vehicleC = resultc.getInt("_5_vehicle_Conductor");
+////                System.out.println("ID conductor:" + idC + ", Marca:" + marcaV + ", Model:" + modelV);
+//                modelo.insertarConductor(nomC, cognomC, edatC, idC, vehicleC);
+//                //System.out.println("Coleccio conductor despres de insertar les dades de la bd->");
+//                // System.out.println(modelo.getDataConductor());
+//            }
+//        } catch (SQLException ex) {
+//            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+//        }
 
-            //COSA DE VEHICLE
-            Statement sta = con.createStatement();
-            ResultSet result = sta.executeQuery("SELECT * FROM vehicle;");
 
-            int numV;
-            String modelV;
-            int anyV;
-            String marcaV;
 
-            while (result.next()) {
-                numV = result.getInt("_1_numero_Vehicle");
-                modelV = result.getString("_2_model_Vehicle");
-                anyV = result.getInt("_3_any_Vehicle");
-                marcaV = result.getString("_4_marca_Vehicle");
-                modelo.insertarVehicle(marcaV, modelV, anyV, numV);
-            }
 
-            //COSA DE CONDUCTOR
-            Statement stac = con.createStatement();
-            ResultSet resultc = stac.executeQuery("SELECT * FROM conductor;");
 
-            int idC;
-            String cognomC;
-            int edatC;
-            String nomC;
-            int vehicleC;
+        //DB4O
 
-            while (resultc.next()) {
-                idC = resultc.getInt("_1_id_conductor");
-                cognomC = resultc.getString("_2_cognom_Conductor");
-                edatC = resultc.getInt("_3_edat_Conductor");
-                nomC = resultc.getString("_4_nom_Conductor");
-                vehicleC = resultc.getInt("_5_vehicle_Conductor");
-//                System.out.println("ID conductor:" + idC + ", Marca:" + marcaV + ", Model:" + modelV);
-                modelo.insertarConductor(nomC, cognomC, edatC, idC, vehicleC);
-                //System.out.println("Coleccio conductor despres de insertar les dades de la bd->");
-                // System.out.println(modelo.getDataConductor());
-            }
-        } catch (SQLException ex) {
-            Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
+        modelo.buidarCol();
+
+        //CARREGAR VEHICLES A LA COL·LECCIÓ
+        ObjectSet<Vehicle> resultV =  modelo.getObjecteDB().queryByExample(new Vehicle(null, null, 0, 0));
+        for (Vehicle vehicle : resultV) {
+            modelo.insertarVehicle(vehicle);
         }
+        
+        //CARREGAR CONDUCTOR A LA COL·LECCIÓ
+        ObjectSet<Conductor> resultC =  modelo.getObjecteDB().queryByExample(new Conductor(null, null, 0, 0, 0));
+        for (Conductor conductor : resultC) {
+            modelo.insertarConductor(conductor);
+        }
+
         carregarTaulaVehicleActual();
         carregarTaulaConductorActual();
+
+
+         
 
     }
 
@@ -382,7 +404,7 @@ public class Controller {
                 int any = Integer.parseInt(view.getEditarAnyText().getText());
                 String marca = view.getEditarMarcaText().getText();
                 tcm.removeColumn(tc);
-                modelo.editarVehicleBD(marca, model, any, num);
+                modelo.editarVehicleBD(veh, marca, model, any);
                 filaSel = -1;
                 carregarBD();
             } else {
@@ -409,17 +431,16 @@ public class Controller {
                                 || Integer.parseInt(view.getAfegirAnyText().getText()) > 2030) {
                             JOptionPane.showMessageDialog(view, "El any ha de ser valid (entre 1900 i 2030)");
                         } else {
-                            modelo.insertarVehicleBD(view.getAfegirMarcaText().getText(),
+                            Vehicle vI = new Vehicle (view.getAfegirMarcaText().getText(),
                                     view.getAfegirModelText().getText(),
                                     Integer.parseInt(view.getAfegirAnyText().getText()),
                                     Integer.parseInt(view.getAfegirNumeroText().getText())
                             );
+                            modelo.insertarObjecteBD(vI);
                             carregarBD();
                         }
                     } catch (NumberFormatException x) {
                         JOptionPane.showMessageDialog(view, "El any ha de ser un ANY (en numeros, no escrit)");
-                    } catch (SQLException ex) {
-                        JOptionPane.showMessageDialog(view, "Error SQL: No pot haver-hi dos registres amb la mateixa ID!");
                     }
                     actualitzarComboboxCond();
                     carregarTaulaVehicleActual();
@@ -439,7 +460,6 @@ public class Controller {
                 Connection conE = con;
                 try {
 
-                    conE.setAutoCommit(false);
                     TableColumnModel tcm = view.getJTaulaVehicles().getColumnModel();
                     tcm.addColumn(tc);
                     Vehicle veh = (Vehicle) view.getJTaulaVehicles().getValueAt(filaSel, tcm.getColumnCount() - 1);
@@ -450,26 +470,20 @@ public class Controller {
                         Conductor cond = (Conductor) view.getJTaulaConductor().getValueAt(i, tcmA.getColumnCount() - 1);
                         tcmA.removeColumn(tcC);
                         if (cond.get5_vehicle_Conductor() == veh.get1_numero_Vehicle()) {
-                            modelo.eliminarConductorBD(cond);
+                            modelo.eliminarObjecteBD(cond);
                             carregarTaulaVehicleActual();
                             carregarTaulaConductorActual();
                         }
                     }
-                    modelo.eliminarVehicleBD(veh);
-                    conE.commit();
+                    modelo.eliminarObjecteBD(veh);
                     actualitzarComboboxCond();
                     carregarBD();
                     carregarTaulaVehicleActual();
                     carregarTaulaConductorActual();
 
                     filaSel = -1;
-                } catch (SQLException ex) {
-                    System.out.println("Algo no ha anat bè al borrar registres. Tirant atras el commit...");
-                    try {
-                        conE.rollback();
-                    } catch (SQLException ex1) {
-                        System.out.println("Ha fallat el rollback, S'ACABA EL MON CORREU NOIS CORREU");
-                    }
+                } catch (Exception ex) {
+                    System.out.println("Algo no ha anat bè al borrar registres.");
                 }
             } else {
                 System.out.println(filaSel);
@@ -535,14 +549,14 @@ public class Controller {
             carregarTaulaConductorActual();
             if (filaSelCond != -1) {
                 TableColumnModel tcm = view.getJTaulaConductor().getColumnModel();
-                tcm.addColumn(tc);
+                tcm.addColumn(tcC);
 //                        System.out.println(filaSel);  
                 Conductor cond = (Conductor) view.getJTaulaConductor().getValueAt(filaSelCond, tcm.getColumnCount() - 1);
                 String cognom = view.getEditarCognomConductorText().getText();
                 int edat = Integer.parseInt(view.getEditarEdatConductorText().getText());
                 String nom = view.getEditarNomConductorText().getText();
-                modelo.editarConductorBD(nom, cognom, edat);
-                tcm.removeColumn(tc);
+                modelo.editarConductorBD(cond, nom, cognom, edat);
+                tcm.removeColumn(tcC);
 
                 carregarTaulaConductorActual();
 
@@ -580,24 +594,22 @@ public class Controller {
                         tcm.removeColumn(tc);
 
                         int num_veh = veh.get1_numero_Vehicle();
-                        modelo.insertarConductorBD(view.getAfegirNomConductorText().getText(),
+                        Conductor cI = new Conductor(view.getAfegirNomConductorText().getText(),
                                 view.getAfegirCognomConductorText().getText(),
                                 Integer.parseInt(view.getAfegirEdatConductorText().getText()),
                                 Integer.parseInt(view.getAfegirIdConductorText().getText()),
                                 //                                Integer.parseInt(view.getAfegirNumeroText().getText())
                                 num_veh
                         );
+                        modelo.insertarObjecteBD(cI);
                         carregarBD();
                     }
 
                 } catch (NumberFormatException a) {
                     JOptionPane.showMessageDialog(view, "La edat ha de estar en format numeric!");
-                } catch (SQLException a) {
-                    Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, a);
-////                    JOptionPane.showMessageDialog(view, "Error SQL: No pot haver-hi dos registres amb la mateixa ID!");
-                }
                 carregarTaulaConductorActual();
                 carregarTaulaVehicleActual();
+            }
             }
 
         }
@@ -612,7 +624,7 @@ public class Controller {
                 Conductor cond = (Conductor) view.getJTaulaConductor().getValueAt(filaSelCond, tcm.getColumnCount() - 1);
 //                        System.out.println(veh.toString());
                 tcm.removeColumn(tcC);
-                modelo.eliminarConductorBD(cond);
+                modelo.eliminarObjecteBD(cond);
                 carregarTaulaConductorActual();
                 carregarTaulaVehicleActual();
                 filaSelCond = -1;
@@ -637,28 +649,10 @@ public class Controller {
         );
         
         
-        //COSA DE ACTUALITZAR LA BD SI CANVIEM ALGO DIRECTAMENT A LA TAULA OLE OLE
-        KeyStroke enter = KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0);
-        view.getJTaulaVehicles().getModel().addTableModelListener(new TableModelListener() {
-            @Override
-            public void tableChanged(TableModelEvent e) {
-                // TODO fer cosa de que canvii a la BD o algo no se
-                System.out.println("holaa");
-            }
-            
-        });
-
-//        view.getNumVehicleConductorCombobox().addItemListener(e -> {
-//            comboboxActualCond =;
-//        });
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
-                try {
-                    modelo.closeConnection();
-                } catch (SQLException ex) {
-                    Logger.getLogger(Controller.class.getName()).log(Level.SEVERE, null, ex);
-                }
+                modelo.tancarBD();
             }
         });
 

@@ -5,6 +5,9 @@
  */
 package model;
 
+import com.db4o.Db4oEmbedded;
+import com.db4o.ObjectContainer;
+import com.db4o.ObjectSet;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -21,13 +24,12 @@ import model.Conductor;
  */
 public class Model {
 
-    private String urlBD = "jdbc:mysql://localhost:3306/projecteMP3";
-    private String userBD = "alumne";
-    //Esta feo aixo de posar hardcoded una password pero suo bastant
-    private String passwordUserBD = "alumne";
-
-    private String bdDriver = "com.mysql.jdbc.Driver";
-
+//    private String urlBD = "jdbc:mysql://localhost:3306/projecteMP3";
+//    private String userBD = "alumne";
+//    //Esta feo aixo de posar hardcoded una password pero suo bastant
+//    private String passwordUserBD = "alumne";
+//
+//    private String bdDriver = "com.mysql.jdbc.Driver";
 //    public static final String table_header[] = {"Marca Vehicle", "Model Vehicle", "Any Vehicle", "Numero Vehicle"};
 //    public static final ArrayList<Vehicle> data = new ArrayList<Vehicle>(); 
     public Model() throws SQLException {
@@ -52,21 +54,29 @@ public class Model {
      *
      * @return
      */
-    public Connection getConnection() throws SQLException {
-        Connection con;
-        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-        return con;
+//    public Connection getConnection() throws SQLException {
+////        Connection con;
+////        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
+////        return con;
+//          
+//
+//    }
+//    public void closeConnection() throws SQLException {
+//        Connection con = this.getConnection();
+//        con.close();
 
+    public ObjectContainer getObjecteDB() {
+        return dbOBJECTES;
     }
 
-    public void closeConnection() throws SQLException {
-        Connection con = this.getConnection();
-        con.close();
-    }
-
+//    public ObjectContainer getConductorDB() {
+//        return dbCONDUCTORS;
+//    }
     //Vehciles
     private Collection<Vehicle> data = new TreeSet<>();
     private Collection<Vehicle> dataOrd = new TreeSet<>(new VehicleOrdenatMarca());
+
+    ObjectContainer dbOBJECTES = Db4oEmbedded.openFile("objectes.yap");
 
     public Collection<Vehicle> getData() {
         return data;
@@ -81,8 +91,7 @@ public class Model {
         col.add(a);
     }
 
-    public void insertarVehicle(String marca, String model, int any, int numero) {
-        Vehicle ve = new Vehicle(marca, model, any, numero);
+    public void insertarVehicle(Vehicle ve) {
         Model.insertar(ve, data);
         Model.insertar(ve, dataOrd);
 //        Connection conV = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
@@ -99,40 +108,18 @@ public class Model {
 //        conV.close();
     }
 
-    public void insertarVehicleBD(String marca, String model, int any, int numero) throws SQLException {
-
-//            Vehicle ve = new Vehicle(marca, model, any, numero);
-//        Model.insertar(ve, data);
-//        Model.insertar(ve, dataOrd);
-        Connection con = this.getConnection();
-        String query = " INSERT INTO vehicle VALUES (?, ?, ?, ?) ";
-
-        PreparedStatement preparedStmt = con.prepareStatement(query);
-        preparedStmt.setInt(1, numero);
-        preparedStmt.setString(2, model);
-        preparedStmt.setInt(3, any);
-        preparedStmt.setString(4, marca);
-
-        preparedStmt.execute();
-
+    public void insertarObjecteBD(Object o) {
+        dbOBJECTES.store(o);
     }
 
-    public void editarVehicleBD(String marca, String model, int any, int numero) {
-        try {
-            String query = " UPDATE vehicle SET _2_model_Vehicle = ?, _3_any_Vehicle = ?, _4_marca_Vehicle = ? WHERE _1_numero_Vehicle = ?";
+    public void editarVehicleBD(Vehicle v, String marca, String model, int any) {
+        v.set4_marca_Vehicle(marca);
+        dbOBJECTES.store(v);
+        v.set2_model_Vehicle(model);
+        dbOBJECTES.store(v);
+        v.set3_any_Vehicle(any);
+        dbOBJECTES.store(v);
 
-            Connection con = this.getConnection();
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(4, numero);
-            preparedStmt.setString(1, model);
-            preparedStmt.setInt(2, any);
-            preparedStmt.setString(3, marca);
-
-            preparedStmt.execute();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
     }
 
     //metode generic per a eliminar dades 
@@ -147,22 +134,8 @@ public class Model {
         dataOrdConductor.clear();
     }
 
-
-    public void eliminarVehicleBD(Vehicle v) {
-        try {
-            Connection con = this.getConnection();
-            String query = " DELETE FROM vehicle WHERE _1_numero_Vehicle = ?";
-
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(1, v.get1_numero_Vehicle());
-
-            preparedStmt.execute();
-
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
+    public void eliminarObjecteBD(Object v) {
+        dbOBJECTES.delete(v);
     }
 
 //    public void actualitzarVehicle(String marca, String model, int any, int numero) {
@@ -194,64 +167,24 @@ public class Model {
         return dataOrdConductor;
     }
 
-    public void insertarConductor(String nom, String cognom, int edat, int id, int vehicle_Conductor) {
-        Conductor co = new Conductor(nom, cognom, edat, id, vehicle_Conductor);
+    public void insertarConductor(Conductor co) {
         Model.insertar(co, dataConductor);
         Model.insertar(co, dataOrdConductor);
 
     }
 
-    public void insertarConductorBD(String nom, String cognom, int edat, int id, int vehicle_Conductor) throws SQLException {
-        Connection con = this.getConnection();
-        String query = " INSERT INTO conductor VALUES (?, ?, ?, ?, ?) ";
+    public void editarConductorBD(Conductor c, String nom, String cognom, int edat) {
+        c.set2_cognom_Conductor(cognom);
+        dbOBJECTES.store(c);
+        c.set3_edat_Conductor(edat);
+        dbOBJECTES.store(c);
+        c.set4_nom_Conductor(nom);
+        dbOBJECTES.store(c);
 
-        PreparedStatement preparedStmt;
-
-        preparedStmt = con.prepareStatement(query);
-
-        preparedStmt.setInt(1, id);
-        preparedStmt.setString(2, cognom);
-        preparedStmt.setInt(3, edat);
-        preparedStmt.setString(4, nom);
-        preparedStmt.setInt(5, vehicle_Conductor);
-
-        preparedStmt.execute();
     }
 
-    public void eliminarConductorBD(Conductor c) {
-//        Model.eliminar(algo, dataConductor);
-//        Model.eliminar(algo, dataOrdConductor);
-
-        try {
-            Connection con = this.getConnection();
-            String query = " DELETE FROM conductor WHERE _1_id_conductor = ?";
-
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setInt(1, c.get1_id_Conductor());
-
-            preparedStmt.execute();
-
-            con.close();
-        } catch (SQLException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
-    
-        public void editarConductorBD(String nom, String cognom, int edat) {
-        try {
-            String query = " UPDATE conductor SET _2_cognom_Conductor = ?, _3_edat_Conductor = ?, _4_nom_Conductor = ? WHERE _1_id_Conductor = ?";
-
-            Connection con = this.getConnection();
-            PreparedStatement preparedStmt = con.prepareStatement(query);
-            preparedStmt.setString(1, cognom);
-            preparedStmt.setInt(2, edat);
-            preparedStmt.setString(3, nom);
-
-            preparedStmt.execute();
-
-        } catch (SQLException ex) {
-            Logger.getLogger(Model.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    public void tancarBD() {
+        dbOBJECTES.close();
     }
 
     class ConductorOrdenatNom implements Comparator<Conductor> {
