@@ -34,44 +34,16 @@ public class Model {
 //    public static final ArrayList<Vehicle> data = new ArrayList<Vehicle>(); 
     public Model() throws SQLException {
 
-        //MOGUT AL CONTROLADOR DIRECTE
-        //Afegir vehicles
-//        data.add(new Vehicle("Mazda", "RX-7 FC", 1989, 6));
-//        data.add(new Vehicle("Nissan", "Skyline GTR R32", 1991, 22));
-//        data.add(new Vehicle("Toyota", "Corolla Trueno AE86", 1986, 86));
-//        data.add(new Vehicle("Nissan", "Silvia S15", 1998, 66));
-//        data.add(new Vehicle("Audi", "Quattro Sport", 1988, 15));
-//        data.add(new Vehicle("BMW", "M3 GTR", 2005, 19));
-//        Afegir conductors
-//        dataConductor.add(new Conductor("Pepe", "Viyuela", 45, 6589));
-//        dataConductor.add(new Conductor("Paul", "Walker", 47, 2254));
-//        dataConductor.add(new Conductor("Ian", "Lewis", 24, 222));
-//        dataConductor.add(new Conductor("Alex", "Cañizares", 21, 1574));
-//        dataConductor.add(new Conductor("Frank", "Williams", 53, 1));
     }
 
     /**
      *
      * @return
      */
-//    public Connection getConnection() throws SQLException {
-////        Connection con;
-////        con = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-////        return con;
-//          
-//
-//    }
-//    public void closeConnection() throws SQLException {
-//        Connection con = this.getConnection();
-//        con.close();
 
-    public ObjectContainer getObjecteDB() {
+    public ObjectContainer getDB() {
         return dbOBJECTES;
     }
-
-//    public ObjectContainer getConductorDB() {
-//        return dbCONDUCTORS;
-//    }
     //Vehciles
     private Collection<Vehicle> data = new TreeSet<>();
     private Collection<Vehicle> dataOrd = new TreeSet<>(new VehicleOrdenatMarca());
@@ -94,18 +66,7 @@ public class Model {
     public void insertarVehicle(Vehicle ve) {
         Model.insertar(ve, data);
         Model.insertar(ve, dataOrd);
-//        Connection conV = DriverManager.getConnection(urlBD, userBD, passwordUserBD);
-//        String query = " INSERT INTO vehicle VALUES (?, ?, ?, ?) ";
-//        
-//        PreparedStatement preparedStmt = conV.prepareStatement(query);
-//        preparedStmt.setInt(1, numero);
-//        preparedStmt.setString(2, model);
-//        preparedStmt.setInt(3, any);
-//        preparedStmt.setString(4, marca);
-//        
-//        preparedStmt.execute();
-//        
-//        conV.close();
+
     }
 
     public void insertarObjecteBD(Object o) {
@@ -138,9 +99,6 @@ public class Model {
         dbOBJECTES.delete(v);
     }
 
-//    public void actualitzarVehicle(String marca, String model, int any, int numero) {
-//
-//    }
     class VehicleOrdenatMarca implements Comparator<Vehicle> {
 
         @Override

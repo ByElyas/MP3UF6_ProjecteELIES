@@ -6,6 +6,8 @@
 package controller;
 
 import com.db4o.ObjectSet;
+import com.db4o.query.Predicate;
+import com.db4o.query.Query;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -27,6 +29,7 @@ import model.Vehicle;
 import utilscontroller.Utils;
 import view.View;
 import java.sql.*;
+import java.util.Comparator;
 import java.util.Properties;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
@@ -79,13 +82,6 @@ public class Controller {
         view.getAfegirModelText().setText("Model Placeholder");
         view.getAfegirAnyText().setText("1900");
         view.getAfegirNumeroText().setText("99");
-        view.getAfegirSponsor1Label().setText("Sponsor 1");
-        view.getAfegirSponsor2Label().setText("Sponsor 2");
-        view.getAfegirSponsor3Label().setText("Sponsor 3");
-        view.getAfegirSponsor1Text().setText("Exemple");
-        view.getAfegirSponsor2Text().setText("Exemple");
-        view.getAfegirSponsor3Text().setText("Exemple");
-
         //FILTRE
         view.getFiltrarVehiclesCombobox().removeAllItems();
         view.getFiltrarVehiclesCombobox().addItem("Ordenar per numero");
@@ -114,6 +110,19 @@ public class Controller {
         view.getEditarNumeroLabel().setText("Numero Vehicle");
         view.getEditarNumeroText().setText("999");
 //        tcmE.removeColumn(tc);
+
+        //CONSULTA CONDUCTORS > DE X EDAT
+        view.getConsultaEdatLabel1().setText("Quants conductors hi han amb mes de ");
+        view.getConsultaEdatText1().setText("18");
+        view.getConsultaEdatLabel2().setText("anys?");
+        view.getConsultaEdatText2().setText("          ");
+        view.getConsultaEdatButton().setText("Consulta!");
+
+        //LLISTAR CONDUCTORS QUE COMENÇEN PER X LLETRA
+        view.getLlistarCondLabel().setText("Llistar els conductors que començen per la lletra: ");
+        view.getLlistarCondTextfield().setColumns(3);
+        view.getLlistarCondTextfield().setText("A");
+        view.getLlistarCondButton().setText("Llistar!");
 
         /**
          * Conductor
@@ -201,26 +210,22 @@ public class Controller {
     private void carregarBD() {
 
         //DB4O
-
         modelo.buidarCol();
 
         //CARREGAR VEHICLES A LA COL·LECCIÓ
-        ObjectSet<Vehicle> resultV =  modelo.getObjecteDB().queryByExample(new Vehicle(null, null, 0, 0));
+        ObjectSet<Vehicle> resultV = modelo.getDB().queryByExample(new Vehicle(null, null, 0, 0));
         for (Vehicle vehicle : resultV) {
             modelo.insertarVehicle(vehicle);
         }
-        
+
         //CARREGAR CONDUCTOR A LA COL·LECCIÓ
-        ObjectSet<Conductor> resultC =  modelo.getObjecteDB().queryByExample(new Conductor(null, null, 0, 0, 0));
+        ObjectSet<Conductor> resultC = modelo.getDB().queryByExample(new Conductor(null, null, 0, 0, 0));
         for (Conductor conductor : resultC) {
             modelo.insertarConductor(conductor);
         }
 
         carregarTaulaVehicleActual();
         carregarTaulaConductorActual();
-
-
-         
 
     }
 
@@ -334,13 +339,13 @@ public class Controller {
             } else {
                 //Exemple de validesa utilitzant expressions regulars
                 if (view.getAfegirNumeroText().getText().matches("\\d{2}") || view.getAfegirNumeroText().getText().matches("\\d{1}")) {
-                    String[] sponsors_vehicle = {view.getAfegirSponsor1Text().getText(), view.getAfegirSponsor2Text().getText(), view.getAfegirSponsor3Text().getText()};
+
                     try {
                         if (Integer.parseInt(view.getAfegirAnyText().getText()) < 1900
                                 || Integer.parseInt(view.getAfegirAnyText().getText()) > 2030) {
                             JOptionPane.showMessageDialog(view, "El any ha de ser valid (entre 1900 i 2030)");
                         } else {
-                            Vehicle vI = new Vehicle (view.getAfegirMarcaText().getText(),
+                            Vehicle vI = new Vehicle(view.getAfegirMarcaText().getText(),
                                     view.getAfegirModelText().getText(),
                                     Integer.parseInt(view.getAfegirAnyText().getText()),
                                     Integer.parseInt(view.getAfegirNumeroText().getText())
@@ -516,9 +521,9 @@ public class Controller {
 
                 } catch (NumberFormatException a) {
                     JOptionPane.showMessageDialog(view, "La edat ha de estar en format numeric!");
-                carregarTaulaConductorActual();
-                carregarTaulaVehicleActual();
-            }
+                    carregarTaulaConductorActual();
+                    carregarTaulaVehicleActual();
+                }
             }
 
         }
@@ -527,7 +532,7 @@ public class Controller {
         view.getEliminarConductorButton().addActionListener(e -> {
             if (filaSelCond != -1) {
                 TableColumnModel tcm = view.getJTaulaConductor().getColumnModel();
-                tcm.addColumn(tcC);  
+                tcm.addColumn(tcC);
                 Conductor cond = (Conductor) view.getJTaulaConductor().getValueAt(filaSelCond, tcm.getColumnCount() - 1);
                 tcm.removeColumn(tcC);
                 modelo.eliminarObjecteBD(cond);
@@ -553,15 +558,61 @@ public class Controller {
             }
         }
         );
-        
-        
+
+        //CONSULTA EDAT CONDUCTORS
+        view.getConsultaEdatButton().addActionListener(e -> {
+            int i = 0;
+            int consta = Integer.parseInt(view.getConsultaEdatText1().getText());
+
+            Query q = modelo.getDB().query();
+            q.constrain(model.Conductor.class);
+            q.descend("_3_edat_Conductor").constrain(consta).greater();
+
+            ObjectSet<Conductor> result = q.execute();
+
+            for (Conductor c : result) {
+                System.out.println(c.toString());
+                i++;
+            }
+            view.getConsultaEdatText2().setText(String.valueOf(i));
+        }
+        );
+
+        //LLISTAT CONDUCTORS PER NOM
+        view.getLlistarCondButton().addActionListener(e -> {
+            view.getLlistarCondTextarea().setText("");
+            if (view.getLlistarCondTextfield().getText().length() <= 1) {
+                char lletra = view.getLlistarCondTextfield().getText().charAt(0);
+                Comparator<Conductor> cmpCond = new Comparator<Conductor>() {
+                    public int compare(Conductor c1, Conductor c2) {
+                        return c1.get4_nom_Conductor().compareTo(c2.get4_nom_Conductor());
+                    }
+                };
+                ObjectSet<Conductor> llistat = modelo.getDB().query(new Predicate<Conductor>() {
+                    @Override
+                    public boolean match(Conductor co) {
+                        return co.get4_nom_Conductor().charAt(0) == lletra;
+                    }
+                }, cmpCond);
+
+                
+                
+                for(Conductor c: llistat) {
+                    view.getLlistarCondTextarea().append(c.get4_nom_Conductor()+" "+c.get2_cognom_Conductor()+", ");
+                }
+            } else {
+                view.getLlistarCondTextarea().setText("Només pots introduir una lletra!");
+            }
+
+        });
+
+        //COSES QUE FER AL TANCAR EL PROGRAMA
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 modelo.tancarBD();
             }
         });
-
 
     }
 
